@@ -20,6 +20,13 @@ func (s Spot) GetPawns() map[Pawn]bool {
 	return s.pawnsHere
 }
 
+func (s Spot) PawnOnSpot(pawn Pawn) bool {
+	if _, ok := s.pawnsHere[pawn]; ok {
+		return true
+	}
+	return false
+}
+
 func (s *Spot) Remove(p Pawn) {
 	//design choice: no error return if p isn't in the spot to start with
 	delete(s.pawnsHere, p)

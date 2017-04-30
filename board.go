@@ -46,6 +46,17 @@ func (b Board) putPawn(p Pawn, pos int) {
 	b.board[pos].Add(p)
 }
 
+const PAWNNOTFOUND = -1
+
+func (b Board) findPawn(p Pawn) int {
+	for spotIdx, spot := range b.board {
+		if spot.PawnOnSpot(p) {
+			return spotIdx
+		}
+	}
+	return -1
+}
+
 func NewBoard(allPlayers []int) *Board {
 	board := make([]Spot, 105)
 	//initialize spots
@@ -66,7 +77,6 @@ func NewBoard(allPlayers []int) *Board {
 
 func (b Board) UpdateBoard(m Move) int {
 	if reflect.TypeOf(m) == reflect.TypeOf(EnterPiece{}) {
-		//@TODO: CHECK FOR BOPPING ETC
 		enterSpotIdx := _getEnterSpot(m.getPawn().getPlayerID())
 		if b.checkBlockade(m) {
 			//Doing nothing - returning -1 as error code
