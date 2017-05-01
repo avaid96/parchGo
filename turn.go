@@ -14,15 +14,22 @@ const (
 )
 
 //creates a new turn
-func NewTurn(b Board, playerID int) (*Turn, int) {
-	r1 := throwDie()
-	r2 := throwDie()
-	rolls := []int{r1, r2}
+func NewTurn(b Board, playerID int, rolls []int) (*Turn, int) {
 	doublesP := false
-	if r1 == r2 {
+	if rolls[0] == rolls[1] {
+		//TODO
+		//IF ALL NOT ON STARTING SPOT
+		//ROLLS = []int{14,14}
 		doublesP = true
 		return &Turn{rolls: rolls, doublesP: doublesP, board: b, playerID: playerID}, DOUBLESCODE
 	}
+	return &Turn{rolls: rolls, doublesP: doublesP, board: b, playerID: playerID}, FINE
+}
+
+func NewHomeBonusTurn(b Board, playerID int) (*Turn, int) {
+	r1 := 10
+	rolls := []int{r1}
+	doublesP := false
 	return &Turn{rolls: rolls, doublesP: doublesP, board: b, playerID: playerID}, FINE
 }
 

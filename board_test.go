@@ -23,7 +23,7 @@ func TestBoardInit(t *testing.T) {
 	}
 	startingPawns := player1StartSpot.GetPawns()
 	for i := 0; i < 4; i++ {
-		pawni := Pawn{i, 0}
+		pawni := Pawn{i, mapColor[i]}
 		if _, ok := startingPawns[pawni]; !ok {
 			t.Error(pawni, " not initialized in starting spot")
 		}
@@ -55,8 +55,8 @@ func TestEnterSpot(t *testing.T) {
 func TestEntering(t *testing.T) {
 	allPlayers := []int{0, 1, 2, 3}
 	b1 := NewBoard(allPlayers)
-	firstPawn := Pawn{pawnID: 0, playerID: 0}
-	m1 := EnterPiece{}
+	firstPawn := Pawn{pawnID: 0, color: mapColor[0]}
+	m1 := EnterPiece{firstPawn}
 	b1.UpdateBoard(m1)
 	//check pawn 0,0 moved out
 	player1StartSpot := b1.GetSpot(_getStartingSquare(0))
@@ -83,7 +83,7 @@ func TestEntering(t *testing.T) {
 func TestRegularMove(t *testing.T) {
 	allPlayers := []int{0, 1, 2, 3}
 	b1 := NewBoard(allPlayers)
-	firstPawn := Pawn{pawnID: 0, playerID: 0}
+	firstPawn := Pawn{pawnID: 0, color: mapColor[0]}
 	m1 := EnterPiece{firstPawn}
 	b1.UpdateBoard(m1)
 	m3 := MoveMain{firstPawn, _getEnterSpot(0), 5}
@@ -100,11 +100,11 @@ func TestRegularMove(t *testing.T) {
 }
 
 func TestCheckHREnter(t *testing.T) {
-	m3 := MoveMain{Pawn{pawnID: 0, playerID: 0}, 8, 3}
+	m3 := MoveMain{Pawn{pawnID: 0, color: mapColor[0]}, 8, 3}
 	if !(checkEnterHomeRow(m3)) {
 		t.Error("Should be true, it enters home row")
 	}
-	m3 = MoveMain{Pawn{pawnID: 0, playerID: 0}, 7, 1}
+	m3 = MoveMain{Pawn{pawnID: 0, color: mapColor[0]}, 7, 1}
 	if checkEnterHomeRow(m3) {
 		t.Error("Should be false, it's still on shared ring")
 	}
@@ -113,9 +113,9 @@ func TestCheckHREnter(t *testing.T) {
 func TestHREnter(t *testing.T) {
 	allPlayers := []int{0, 1, 2, 3}
 	b1 := NewBoard(allPlayers)
-	firstPawn := Pawn{pawnID: 0, playerID: 0}
+	firstPawn := Pawn{pawnID: 0, color: mapColor[0]}
 	b1.putPawn(firstPawn, 8)
-	m3 := MoveMain{Pawn{pawnID: 0, playerID: 0}, 8, 3}
+	m3 := MoveMain{Pawn{pawnID: 0, color: mapColor[0]}, 8, 3}
 	b1.UpdateBoard(m3)
 	wrongSpot := b1.GetSpot(11)
 	pawns := wrongSpot.GetPawns()
@@ -137,9 +137,9 @@ func TestHREnter(t *testing.T) {
 func TestGoHome(t *testing.T) {
 	allPlayers := []int{0, 1, 2, 3}
 	b1 := NewBoard(allPlayers)
-	firstPawn := Pawn{pawnID: 0, playerID: 0}
+	firstPawn := Pawn{pawnID: 0, color: mapColor[0]}
 	b1.putPawn(firstPawn, 71)
-	m3 := MoveHome{Pawn{pawnID: 0, playerID: 0}, 71}
+	m3 := MoveHome{Pawn{pawnID: 0, color: mapColor[0]}, 71}
 	b1.UpdateBoard(m3)
 	correctSpot := b1.GetSpot(_getPlayerHome(firstPawn.getPlayerID()))
 	pawns := correctSpot.GetPawns()
@@ -155,9 +155,9 @@ func TestGoHome(t *testing.T) {
 func TestMoveInHomeRow(t *testing.T) {
 	allPlayers := []int{0, 1, 2, 3}
 	b1 := NewBoard(allPlayers)
-	firstPawn := Pawn{pawnID: 0, playerID: 0}
+	firstPawn := Pawn{pawnID: 0, color: mapColor[0]}
 	b1.putPawn(firstPawn, 71)
-	m3 := MoveMain{Pawn{pawnID: 0, playerID: 0}, 71, 3}
+	m3 := MoveMain{Pawn{pawnID: 0, color: mapColor[0]}, 71, 3}
 	b1.UpdateBoard(m3)
 	correctSpot := b1.GetSpot(74)
 	pawns := correctSpot.GetPawns()
@@ -173,8 +173,8 @@ func TestMoveInHomeRow(t *testing.T) {
 func TestBop(t *testing.T) {
 	allPlayers := []int{0, 1, 2, 3}
 	b1 := NewBoard(allPlayers)
-	firstPawn := Pawn{pawnID: 0, playerID: 0}
-	m1 := EnterPiece{}
+	firstPawn := Pawn{pawnID: 0, color: mapColor[0]}
+	m1 := EnterPiece{firstPawn}
 	b1.UpdateBoard(m1)
 	//check pawn 0,0 moved out
 	player1StartSpot := b1.GetSpot(_getStartingSquare(0))
@@ -184,7 +184,7 @@ func TestBop(t *testing.T) {
 		t.Error("Expected 3 got ", got)
 	}
 	b1.putPawn(firstPawn, 21)
-	secondPawn := Pawn{pawnID: 0, playerID: 1}
+	secondPawn := Pawn{pawnID: 0, color: mapColor[1]}
 	b1.putPawn(secondPawn, 19)
 	m3 := MoveMain{secondPawn, 19, 2}
 	b1.UpdateBoard(m3)
@@ -206,8 +206,8 @@ func TestBop(t *testing.T) {
 func TestSafety(t *testing.T) {
 	allPlayers := []int{0, 1, 2, 3}
 	b1 := NewBoard(allPlayers)
-	firstPawn := Pawn{pawnID: 0, playerID: 0}
-	m1 := EnterPiece{}
+	firstPawn := Pawn{pawnID: 0, color: mapColor[0]}
+	m1 := EnterPiece{firstPawn}
 	b1.UpdateBoard(m1)
 	//check pawn 0,0 moved out
 	player1StartSpot := b1.GetSpot(_getStartingSquare(0))
@@ -217,7 +217,7 @@ func TestSafety(t *testing.T) {
 		t.Error("Expected 3 got ", got)
 	}
 	b1.putPawn(firstPawn, 20)
-	secondPawn := Pawn{pawnID: 0, playerID: 1}
+	secondPawn := Pawn{pawnID: 0, color: mapColor[1]}
 	b1.putPawn(secondPawn, 19)
 	m3 := MoveMain{secondPawn, 19, 1}
 	errCode := b1.UpdateBoard(m3)
@@ -237,11 +237,11 @@ func TestSafety(t *testing.T) {
 func TestBlockade(t *testing.T) {
 	allPlayers := []int{0, 1, 2, 3}
 	b1 := NewBoard(allPlayers)
-	firstPawn := Pawn{pawnID: 0, playerID: 0}
+	firstPawn := Pawn{pawnID: 0, color: mapColor[0]}
 	b1.putPawn(firstPawn, 20)
-	secondPawn := Pawn{pawnID: 1, playerID: 0}
+	secondPawn := Pawn{pawnID: 1, color: mapColor[0]}
 	b1.putPawn(secondPawn, 20)
-	thirdPawn := Pawn{pawnID: 2, playerID: 2}
+	thirdPawn := Pawn{pawnID: 2, color: mapColor[2]}
 	m3 := MoveMain{thirdPawn, 19, 1}
 	errCode := b1.UpdateBoard(m3)
 	if errCode != BLOCKADE {

@@ -68,11 +68,20 @@ func NewBoard(allPlayers []int) *Board {
 		startingSqaure := _getStartingSquare(playerID)
 		//initializing player pawns
 		for i := 0; i < 4; i++ {
-			pawni := Pawn{i, playerID}
+			pawni := Pawn{i, mapColor[i]}
 			board[startingSqaure].Add(pawni)
 		}
 	}
 	return &Board{allPlayers: allPlayers, board: board}
+}
+
+func NewEmptyBoard() *Board {
+	board := make([]Spot, 105)
+	//initialize spots
+	for index := range board {
+		board[index] = Spot{make(map[Pawn]bool)}
+	}
+	return &Board{board: board}
 }
 
 func (b Board) UpdateBoard(m Move) int {

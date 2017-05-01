@@ -3,9 +3,9 @@ package main
 import "testing"
 
 func TestSpot(t *testing.T) {
-	pawn1 := Pawn{0, 1}
-	pawn2 := Pawn{0, 2}
-	pawn3 := Pawn{0, 3}
+	pawn1 := Pawn{0, mapColor[1]}
+	pawn2 := Pawn{0, mapColor[2]}
+	pawn3 := Pawn{0, mapColor[3]}
 	s := Spot{make(map[Pawn]bool)}
 	got := len(s.GetPawns())
 	if got != 0 {
