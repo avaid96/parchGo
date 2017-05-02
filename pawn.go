@@ -1,8 +1,8 @@
 package main
 
 type Pawn struct {
-	pawnID int    `xml:"pawn>id"`
-	color  string `xml:"pawn>color"`
+	pawnID int
+	color  string
 }
 
 var colorMap = map[string]int{

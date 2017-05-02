@@ -54,7 +54,7 @@ func (b Board) findPawn(p Pawn) int {
 			return spotIdx
 		}
 	}
-	return -1
+	return PAWNNOTFOUND
 }
 
 func NewBoard(allPlayers []int) *Board {

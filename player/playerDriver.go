@@ -16,7 +16,7 @@ import (
 )
 
 //init player
-var player MyPlayer
+var player SPlayer
 
 type Request struct {
 	XMLName xml.Name `xml:"Message"`
@@ -40,7 +40,7 @@ func interpretPawns(s string) []Pawn {
 		if err != nil {
 			fmt.Println(err)
 		}
-		thisPawn := Pawn{pawnID: i, color: v.Color}
+		thisPawn := Pawn{pawnID: i, color: strings.TrimSpace(v.Color)}
 		pawns = append(pawns, thisPawn)
 	}
 	return pawns
@@ -77,10 +77,11 @@ func interpret(w http.ResponseWriter, r *http.Request) {
 		re, _ = regexp.Compile("<die>\\s*\\d\\s*</die>")
 		dieStrings := (re.FindAllStringSubmatch(s, -1))
 		re, _ = regexp.Compile("\\d")
-		dieRoll1 := (re.FindStringSubmatch(dieStrings[0][0]))[0]
-		dieRoll2 := (re.FindStringSubmatch(dieStrings[1][0]))[0]
+		dieRoll1Str := (re.FindStringSubmatch(dieStrings[0][0]))[0]
+		dieRoll2Str := (re.FindStringSubmatch(dieStrings[1][0]))[0]
+		dieRoll1, _ := strconv.Atoi(dieRoll1Str)
+		dieRoll2, _ := strconv.Atoi(dieRoll2Str)
 		log.Println("dierolls: ", dieRoll1, dieRoll2)
-		return
 		log.Println("!!!!!!!Start")
 		//building the start
 		re, _ = regexp.Compile("<start>(.|\\s)*start>")
@@ -102,34 +103,39 @@ func interpret(w http.ResponseWriter, r *http.Request) {
 		mainString := mainStrings[0]
 		re, _ = regexp.Compile("<piece-loc>.+?piece-loc>")
 		pieceLocs := re.FindAllStringSubmatch(mainString, -1)
-		log.Println(pieceLocs)
 		for _, pl := range pieceLocs {
 			pieceLoc := pl[0]
 			re, _ = regexp.Compile("<pawn>((.|\\s) |[^(pawn)])*pawn>")
 			pawnString := (re.FindAllStringSubmatch(pieceLoc, -1))[0][0] //assuming each piece loc will only have one pawn
 			pawn := interpretPawns(pawnString)[0]
-			log.Println(pawn)
 			re, _ = regexp.Compile("<loc>.+?loc>")
 			locTag := re.FindStringSubmatch(pieceLoc) //assuming each piece loc will only have one loc
 			re, _ = regexp.Compile("\\d+")
 			loc := re.FindStringSubmatch(locTag[0]) //assuming each piece loc will only have one loc
 			rawIndex := (loc[0][0])
-			log.Println(rawIndex)
+			log.Println("insert ", pawn, " at ", rawIndex)
+			// FIGURE OUT THESE REGULAR PIECES
+			// startingSpot = b1.GetSpot(transformToOurBoard(rawIndex))
+			// startingSpot.Add(pawn)
 		}
-		return
 		log.Println("!!!!!!!Home")
 		//building the home
 		re, _ = regexp.Compile("<home>(.|\\s)*home>")
 		homeStrings := re.FindStringSubmatch(boardString)
 		homeString := homeStrings[0]
-		re, _ = regexp.Compile("<pawn>((.|\\s) |[^(pawn)])*pawn>")
-		homePawns := re.FindAllStringSubmatch(homeString, -1)
+		homePawns := interpretPawns(homeString)
 		log.Println(homePawns)
+		var homeSpot Spot
 		for _, pawn := range homePawns {
-			log.Println("+++++++")
-			log.Println(pawn[0])
+			pawnColor := strings.TrimSpace(pawn.color)
+			playerID := colorMap[pawnColor]
+			homeSpot = b1.GetSpot(_getPlayerHome(playerID))
+			homeSpot.Add(pawn)
 		}
-
+		log.Println(b1)
+		moves := player.doMove(*b1, []int{dieRoll1, dieRoll2})
+		log.Println(moves)
+		//encode these in xml and reply
 	}
 	if strings.Contains(s, "doubles-penalty") {
 		log.Println("this tells me I got a doubles penalty")
@@ -148,25 +154,4 @@ func main() {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", interpret).Methods("POST")
 	log.Fatal(http.ListenAndServe(":8080", router))
-}
-
-/////////////ACTUAL PLAYER IMPLEMENTATION
-
-type MyPlayer struct {
-	color string
-	name  string
-	id    int
-}
-
-func (sp *MyPlayer) startGame(color string) string {
-	sp.color = color
-	return sp.name
-}
-
-// func (sp SPlayer) doMove(board Board, rolls []int) []Move {
-// 	return nil
-// }
-
-func (sp *MyPlayer) DoublesPenalty() {
-	log.Println("!!!!!!!! not implemented : doubles penalty")
 }
